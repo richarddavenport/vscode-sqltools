@@ -80,6 +80,42 @@ WHERE
 ORDER BY name
 ;`;
 
+const fetchTriggers = queryFactory`
+SELECT
+  t.tgname AS label,
+  '${ContextValue.TRIGGER}' as type,
+  n.nspname AS schema,
+  current_database() AS database,
+  c.relname AS "tableName",
+  p.proname AS "functionName",
+  quote_ident(n.nspname) || '.' || quote_ident(t.tgname) AS signature,
+  CASE
+    WHEN t.tgtype & 1 = 1 THEN 'ROW'
+    ELSE 'STATEMENT'
+  END AS "triggerLevel",
+  CASE
+    WHEN t.tgtype & 2 = 2 THEN 'BEFORE'
+    WHEN t.tgtype & 64 = 64 THEN 'INSTEAD OF'
+    ELSE 'AFTER'
+  END AS "triggerTiming",
+  CASE
+    WHEN t.tgtype & 4 = 4 THEN 'INSERT'
+    WHEN t.tgtype & 8 = 8 THEN 'DELETE'
+    WHEN t.tgtype & 16 = 16 THEN 'UPDATE'
+    WHEN t.tgtype & 32 = 32 THEN 'TRUNCATE'
+  END AS "triggerEvent",
+  pg_get_triggerdef(t.oid) AS definition,
+  'trigger' as "iconName",
+  '${ContextValue.NO_CHILD}' as "childType"
+FROM pg_trigger t
+INNER JOIN pg_class c ON t.tgrelid = c.oid
+INNER JOIN pg_namespace n ON c.relnamespace = n.oid
+INNER JOIN pg_proc p ON t.tgfoid = p.oid
+WHERE n.nspname = '${p => p.schema}'
+  AND NOT t.tgisinternal
+ORDER BY c.relname, t.tgname
+;`;
+
 const fetchTablesAndViews = (type: ContextValue, tableType = 'BASE TABLE'): IBaseQueries['fetchTables'] => queryFactory`
 SELECT
   T.TABLE_NAME AS label,
@@ -233,6 +269,7 @@ export default {
   fetchTables,
   fetchViews,
   fetchFunctions,
+  fetchTriggers,
   fetchDatabases,
   fetchSchemas,
   fetchMaterializedViews,

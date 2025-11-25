@@ -318,6 +318,7 @@ export declare enum ContextValue {
   CONNECTED_CONNECTION = 'connectedConnection',
   COLUMN = 'connection.column',
   FUNCTION = 'connection.function',
+  TRIGGER = 'connection.trigger',
   SCHEMA = 'connection.schema',
   RESOURCE_GROUP = 'connection.resource_group',
   DATABASE = 'connection.database',

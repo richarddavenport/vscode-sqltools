@@ -206,6 +206,7 @@ export default class PostgreSQL extends AbstractDriver<Pool, PoolConfig> impleme
           { label: 'Views', type: ContextValue.RESOURCE_GROUP, iconId: 'folder', childType: ContextValue.VIEW },
           { label: 'Materialized Views', type: ContextValue.RESOURCE_GROUP, iconId: 'folder', childType: ContextValue.MATERIALIZED_VIEW },
           { label: 'Functions', type: ContextValue.RESOURCE_GROUP, iconId: 'folder', childType: ContextValue.FUNCTION },
+          { label: 'Triggers', type: ContextValue.RESOURCE_GROUP, iconId: 'folder', childType: ContextValue.TRIGGER },
         ];
     }
     return [];
@@ -222,6 +223,8 @@ export default class PostgreSQL extends AbstractDriver<Pool, PoolConfig> impleme
         return this.queryResults(this.queries.fetchMaterializedViews(parent as NSDatabase.ISchema));
       case ContextValue.FUNCTION:
         return this.queryResults(this.queries.fetchFunctions(parent as NSDatabase.ISchema));
+      case ContextValue.TRIGGER:
+        return this.queryResults(this.queries.fetchTriggers(parent as NSDatabase.ISchema));
     }
     return [];
   }
