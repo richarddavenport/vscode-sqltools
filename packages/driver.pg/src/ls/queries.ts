@@ -98,12 +98,12 @@ SELECT
     WHEN t.tgtype & 64 = 64 THEN 'INSTEAD OF'
     ELSE 'AFTER'
   END AS "triggerTiming",
-  CASE
-    WHEN t.tgtype & 4 = 4 THEN 'INSERT'
-    WHEN t.tgtype & 8 = 8 THEN 'DELETE'
-    WHEN t.tgtype & 16 = 16 THEN 'UPDATE'
-    WHEN t.tgtype & 32 = 32 THEN 'TRUNCATE'
-  END AS "triggerEvent",
+  ARRAY_TO_STRING(ARRAY_REMOVE(ARRAY[
+    CASE WHEN t.tgtype & 4 = 4 THEN 'INSERT' END,
+    CASE WHEN t.tgtype & 8 = 8 THEN 'DELETE' END,
+    CASE WHEN t.tgtype & 16 = 16 THEN 'UPDATE' END,
+    CASE WHEN t.tgtype & 32 = 32 THEN 'TRUNCATE' END
+  ], NULL), ' OR ') AS "triggerEvent",
   pg_get_triggerdef(t.oid) AS definition,
   'trigger' as "iconName",
   '${ContextValue.NO_CHILD}' as "childType"
